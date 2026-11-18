@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import {
   LayoutDashboard, Users, UserRound, Target, Phone, CalendarDays,
   Wallet, ClipboardList, BarChart3, FolderKanban, Settings,
@@ -22,11 +23,45 @@ const menuItems = [
 ];
 
 export default function Sidebar() {
+  const [workspaceName, setWorkspaceName] = useState(() => {
+    try {
+      const saved = localStorage.getItem("crm_workspace_settings");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.orgName) return parsed.orgName;
+      }
+    } catch {}
+    return "CRM";
+  });
+
+  useEffect(() => {
+    function handleSettingsChange(e: any) {
+      if (e?.detail?.orgName) {
+        setWorkspaceName(e.detail.orgName);
+      } else {
+        try {
+          const saved = localStorage.getItem("crm_workspace_settings");
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            if (parsed.orgName) setWorkspaceName(parsed.orgName);
+          }
+        } catch {}
+      }
+    }
+
+    window.addEventListener("crm_settings_updated", handleSettingsChange);
+    return () => window.removeEventListener("crm_settings_updated", handleSettingsChange);
+  }, []);
+
   return (
     <aside className="flex h-screen w-64 shrink-0 flex-col bg-[#111827] text-white">
       <div className="flex h-16 items-center gap-3 border-b border-white/10 px-6 shrink-0">
-        <div className="rounded-lg bg-blue-600 p-2"><Building2 size={20} /></div>
-        <span className="text-xl font-bold">CRM</span>
+        <div className="rounded-lg bg-blue-600 p-2 shrink-0"><Building2 size={20} /></div>
+        <div className="overflow-hidden">
+          <span className="text-base font-bold truncate block tracking-tight" title={workspaceName}>
+            {workspaceName}
+          </span>
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 py-4">
@@ -74,15 +109,15 @@ export default function Sidebar() {
           onClick={async () => {
             await supabase.auth.signOut();
           }}
-          className="mt-1 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 transition"
+          className="mt-1 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 transition cursor-pointer"
         >
           <LogOut size={18} /> Sign Out
         </button>
         <div className="mt-3 flex items-center gap-3 border-t border-white/5 pt-3 px-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 font-semibold">A</div>
-          <div>
-            <p className="text-sm font-medium">Administrator</p>
-            <p className="text-xs text-gray-400">Admin Account</p>
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 font-semibold shrink-0">A</div>
+          <div className="overflow-hidden">
+            <p className="text-sm font-medium truncate">Administrator</p>
+            <p className="text-xs text-gray-400 truncate">Admin Account</p>
           </div>
         </div>
       </div>

@@ -370,3 +370,23 @@ CREATE POLICY "Admins have full access to projects" ON public.projects FOR ALL U
 DROP POLICY IF EXISTS "Everyone can view projects" ON public.projects;
 CREATE POLICY "Everyone can view projects" ON public.projects FOR SELECT USING (auth.role() = 'authenticated');
 
+
+
+-- 15. WORKSPACE SETTINGS
+CREATE TABLE IF NOT EXISTS public.workspace_settings (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  org_name text NOT NULL DEFAULT 'Acme Enterprise CRM',
+  support_email text NOT NULL DEFAULT 'support@acmecrm.com',
+  phone text NOT NULL DEFAULT '+91 98000 12345',
+  time_zone text NOT NULL DEFAULT 'Asia/Kolkata (IST +5:30)',
+  two_factor_required boolean NOT NULL DEFAULT false,
+  auto_password_rotation boolean NOT NULL DEFAULT true,
+  email_alerts boolean NOT NULL DEFAULT true,
+  updated_at timestamptz DEFAULT now()
+);
+
+ALTER TABLE public.workspace_settings ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Admins have full access to workspace settings" ON public.workspace_settings;
+CREATE POLICY "Admins have full access to workspace settings" ON public.workspace_settings FOR ALL USING (public.is_admin());
+DROP POLICY IF EXISTS "Everyone can view workspace settings" ON public.workspace_settings;
+CREATE POLICY "Everyone can view workspace settings" ON public.workspace_settings FOR SELECT USING (auth.role() = 'authenticated');
