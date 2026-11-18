@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+
+# Confidential / Interview prep documents
+CRM_DOCUMENTATION_AND_INTERVIEW_GUIDE.md
+*INTERVIEW_GUIDE*
+*interview_guide*

@@ -1,0 +1,5 @@
+﻿packages:
+  - "apps/admin-web"
+  - "apps/employee-web"
+  - "apps/employee-android"
+  - "apps/shared"

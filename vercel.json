@@ -1,0 +1,11 @@
+{
+  "buildCommand": "pnpm web:build",
+  "outputDirectory": "apps/admin-web/dist",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
+

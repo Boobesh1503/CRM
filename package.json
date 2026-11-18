@@ -1,0 +1,17 @@
+{
+  "name": "crm",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "web": "pnpm --filter admin-web dev",
+    "web:build": "pnpm --filter admin-web build",
+    "android": "pnpm --filter employee-android start",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck"
+  },
+  "devDependencies": {
+    "prettier": "^3.6.0",
+    "supabase": "^3.1.0",
+    "typescript": "^5.9.2"
+  }
+}
