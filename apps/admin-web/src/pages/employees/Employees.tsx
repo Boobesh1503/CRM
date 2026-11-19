@@ -661,7 +661,7 @@ export default function Employees() {
   }
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6 p-4 sm:p-6 max-w-full">
       {/* Page heading */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>

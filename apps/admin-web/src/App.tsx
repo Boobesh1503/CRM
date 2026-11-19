@@ -91,6 +91,7 @@ function useAuth() {
 // Protected Admin Panel Layout
 function AdminProtectedLayout() {
   const { session, role, checking } = useAuth();
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   if (checking) {
     return (
@@ -111,10 +112,10 @@ function AdminProtectedLayout() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50">
-      <Sidebar />
+      <Sidebar isMobileOpen={isMobileOpen} onClose={() => setIsMobileOpen(false)} />
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        <Topbar />
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+        <Topbar onToggleSidebar={() => setIsMobileOpen((prev) => !prev)} />
 
         <main className="flex-1 overflow-y-auto">
           <Routes>

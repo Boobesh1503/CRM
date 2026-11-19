@@ -11,7 +11,9 @@ import {
   Building2,
   Search,
   Bell,
-  ChevronDown
+  ChevronDown,
+  Menu,
+  X
 } from "lucide-react";
 import { supabase } from "../../services/supabase";
 
@@ -137,26 +139,54 @@ export default function EmployeeLayout() {
     navigate("/login", { replace: true });
   }
 
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+
   const currentTitle = pageTitles[location.pathname] ?? "Employee Portal";
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50">
+      {/* Mobile Backdrop Overlay */}
+      {isMobileOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-xs md:hidden animate-in fade-in duration-200"
+          onClick={() => setIsMobileOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
       {/* Employee Sidebar - Matches Admin Panel's exact theme & colors */}
-      <aside className="flex h-screen w-64 shrink-0 flex-col bg-[#111827] text-white">
-        <div className="flex h-16 items-center gap-3 border-b border-white/10 px-6">
-          <div className="rounded-lg bg-blue-600 p-2">
-            <Building2 size={20} />
+      <aside
+        className={`
+          fixed inset-y-0 left-0 z-50 flex h-screen w-72 max-w-[82vw] flex-col bg-[#111827] text-white shadow-2xl transition-transform duration-300 ease-in-out
+          md:static md:z-auto md:w-64 md:shrink-0 md:shadow-none md:translate-x-0
+          ${isMobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
+        `}
+      >
+        <div className="flex h-16 items-center justify-between border-b border-white/10 px-5 shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="rounded-lg bg-blue-600 p-2">
+              <Building2 size={20} />
+            </div>
+            <div>
+              <span className="text-xl font-bold">CRM</span>
+              <span className="ml-2 rounded bg-blue-600/30 px-1.5 py-0.5 text-[10px] font-semibold text-blue-400">
+                PORTAL
+              </span>
+            </div>
           </div>
-          <div>
-            <span className="text-xl font-bold">CRM</span>
-            <span className="ml-2 rounded bg-blue-600/30 px-1.5 py-0.5 text-[10px] font-semibold text-blue-400">
-              PORTAL
-            </span>
-          </div>
+          {/* Mobile Close Button */}
+          <button
+            type="button"
+            onClick={() => setIsMobileOpen(false)}
+            className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 md:hidden transition cursor-pointer"
+            title="Close sidebar"
+          >
+            <X size={20} />
+          </button>
         </div>
 
-        <div className="px-4 py-5">
-          <p className="mb-3 px-3 text-xs font-semibold uppercase tracking-wider text-gray-500">
+        <div className="flex-1 overflow-y-auto px-4 py-4">
+          <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-gray-500">
             Workspace
           </p>
           <nav className="space-y-1">
@@ -167,6 +197,7 @@ export default function EmployeeLayout() {
                   key={item.path}
                   to={item.path}
                   end={item.path === "/portal"}
+                  onClick={() => setIsMobileOpen(false)}
                   className={({ isActive }) =>
                     `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition ${
                       isActive
@@ -186,16 +217,19 @@ export default function EmployeeLayout() {
         {/* Profile Card & Logout Footer - Exact match to Admin Sidebar */}
         <div className="mt-auto border-t border-white/10 p-4">
           <button
-            onClick={handleLogout}
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 transition"
+            onClick={async () => {
+              setIsMobileOpen(false);
+              await handleLogout();
+            }}
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 transition cursor-pointer"
           >
             <LogOut size={18} /> Sign Out
           </button>
           <div className="mt-3 flex items-center gap-3 border-t border-white/5 pt-3 px-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 font-semibold text-white">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 font-semibold text-white shrink-0">
               {profile?.full_name ? profile.full_name.charAt(0).toUpperCase() : "E"}
             </div>
-            <div className="min-w-0 flex-1">
+            <div className="min-w-0 flex-1 overflow-hidden">
               <p className="truncate text-sm font-medium text-white">
                 {profile?.full_name || "Employee"}
               </p>
@@ -208,13 +242,21 @@ export default function EmployeeLayout() {
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         {/* Topbar - Exact match to Admin Topbar */}
-        <header className="flex h-16 items-center justify-between border-b border-gray-200 bg-white px-6">
-          <div className="flex items-center gap-4">
-            <div>
-              <h2 className="text-lg font-semibold text-gray-800">{currentTitle}</h2>
-              <p className="text-xs text-gray-500">
+        <header className="flex h-16 items-center justify-between border-b border-gray-200 bg-white px-4 sm:px-6 shrink-0">
+          <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+            <button
+              type="button"
+              onClick={() => setIsMobileOpen((prev) => !prev)}
+              className="p-1.5 -ml-1 text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition md:hidden shrink-0 cursor-pointer"
+              title="Open navigation menu"
+            >
+              <Menu size={22} />
+            </button>
+            <div className="min-w-0">
+              <h2 className="text-base sm:text-lg font-semibold text-gray-800 truncate">{currentTitle}</h2>
+              <p className="text-xs text-gray-500 hidden sm:block truncate">
                 Welcome back, {profile?.full_name || "Employee"}
               </p>
             </div>

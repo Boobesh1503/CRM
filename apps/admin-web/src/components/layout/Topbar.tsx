@@ -39,9 +39,14 @@ const pageTitles: Record<string, string> = {
   "/settings": "Workspace Settings",
   "/attendance-reports": "Attendance Reports",
   "/salaries": "Salary Management",
+  "/salary": "Salary Management",
 };
 
-export default function Topbar() {
+interface TopbarProps {
+  onToggleSidebar?: () => void;
+}
+
+export default function Topbar({ onToggleSidebar }: TopbarProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const title = pageTitles[location.pathname] ?? "Dashboard";
@@ -116,15 +121,21 @@ export default function Topbar() {
   const unreadCount = notifications.filter((n) => !n.is_read).length;
 
   return (
-    <header className="relative flex h-16 items-center justify-between border-b border-gray-200 bg-white px-6">
-      <div className="flex items-center gap-4">
-        <button className="text-gray-500 hover:text-gray-900" title="Menu toggle">
-          <Menu size={21} />
+    <header className="relative flex h-16 items-center justify-between border-b border-gray-200 bg-white px-4 sm:px-6 shrink-0">
+      <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+        <button
+          type="button"
+          onClick={onToggleSidebar}
+          className="p-1.5 -ml-1 text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition md:hidden shrink-0 cursor-pointer"
+          title="Open navigation menu"
+          aria-label="Toggle menu"
+        >
+          <Menu size={22} />
         </button>
-        <div>
-          <h2 className="text-lg font-semibold text-gray-800">{title}</h2>
+        <div className="min-w-0">
+          <h2 className="text-base sm:text-lg font-semibold text-gray-800 truncate">{title}</h2>
           <div className="flex items-center gap-2">
-            <p className="text-xs text-gray-500">Welcome back, Administrator</p>
+            <p className="text-xs text-gray-500 hidden sm:block truncate">Welcome back, Administrator</p>
             
             {/* Functional Three-Dot Menu next to Welcome Back */}
             <div className="relative" ref={threeDotRef}>

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import {
   LayoutDashboard, Users, UserRound, Target, Phone, CalendarDays,
   Wallet, ClipboardList, BarChart3, FolderKanban, Settings,
-  ChevronDown, Building2, LogOut, CalendarCheck, Banknote
+  ChevronDown, Building2, LogOut, CalendarCheck, Banknote, X
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { supabase } from "../../services/supabase";
@@ -22,7 +22,12 @@ const menuItems = [
   { label: "Salary Management", icon: Banknote, path: "/salary" },
 ];
 
-export default function Sidebar() {
+interface SidebarProps {
+  isMobileOpen?: boolean;
+  onClose?: () => void;
+}
+
+export default function Sidebar({ isMobileOpen = false, onClose }: SidebarProps) {
   const [workspaceName, setWorkspaceName] = useState(() => {
     try {
       const saved = localStorage.getItem("crm_workspace_settings");
@@ -54,73 +59,105 @@ export default function Sidebar() {
   }, []);
 
   return (
-    <aside className="flex h-screen w-64 shrink-0 flex-col bg-[#111827] text-white">
-      <div className="flex h-16 items-center gap-3 border-b border-white/10 px-6 shrink-0">
-        <div className="rounded-lg bg-blue-600 p-2 shrink-0"><Building2 size={20} /></div>
-        <div className="overflow-hidden">
-          <span className="text-base font-bold truncate block tracking-tight" title={workspaceName}>
-            {workspaceName}
-          </span>
+    <>
+      {/* Mobile Backdrop Overlay */}
+      {isMobileOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-xs md:hidden animate-in fade-in duration-200"
+          onClick={onClose}
+          aria-hidden="true"
+        />
+      )}
+
+      <aside
+        className={`
+          fixed inset-y-0 left-0 z-50 flex h-screen w-72 max-w-[82vw] flex-col bg-[#111827] text-white shadow-2xl transition-transform duration-300 ease-in-out
+          md:static md:z-auto md:w-64 md:shrink-0 md:shadow-none md:translate-x-0
+          ${isMobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
+        `}
+      >
+        <div className="flex h-16 items-center justify-between border-b border-white/10 px-5 shrink-0">
+          <div className="flex items-center gap-3 overflow-hidden">
+            <div className="rounded-lg bg-blue-600 p-2 shrink-0"><Building2 size={20} /></div>
+            <div className="overflow-hidden">
+              <span className="text-base font-bold truncate block tracking-tight" title={workspaceName}>
+                {workspaceName}
+              </span>
+            </div>
+          </div>
+
+          {/* Close button on mobile */}
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 md:hidden transition cursor-pointer"
+            title="Close sidebar"
+          >
+            <X size={20} />
+          </button>
         </div>
-      </div>
 
-      <div className="flex-1 overflow-y-auto px-4 py-4">
-        <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-gray-500">
-          Workspace
-        </p>
-        <nav className="space-y-1">
-          {menuItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                className={({ isActive }) =>
-                  `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition ${
-                    isActive
-                      ? "bg-blue-600 text-white"
-                      : "text-gray-400 hover:bg-white/10 hover:text-white"
-                  }`
-                }
-              >
-                <Icon size={18} />
-                <span>{item.label}</span>
-                {item.label === "Employees" && <ChevronDown className="ml-auto" size={15} />}
-              </NavLink>
-            );
-          })}
-        </nav>
-      </div>
+        <div className="flex-1 overflow-y-auto px-4 py-4">
+          <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-gray-500">
+            Workspace
+          </p>
+          <nav className="space-y-1">
+            {menuItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  onClick={onClose}
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition ${
+                      isActive
+                        ? "bg-blue-600 text-white font-medium"
+                        : "text-gray-400 hover:bg-white/10 hover:text-white"
+                    }`
+                  }
+                >
+                  <Icon size={18} />
+                  <span>{item.label}</span>
+                  {item.label === "Employees" && <ChevronDown className="ml-auto" size={15} />}
+                </NavLink>
+              );
+            })}
+          </nav>
+        </div>
 
-      <div className="mt-auto border-t border-white/10 p-4">
-        <NavLink
-          to="/settings"
-          className={({ isActive }) =>
-            `flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition ${
-              isActive
-                ? "bg-blue-600 text-white"
-                : "text-gray-400 hover:bg-white/10 hover:text-white"
-            }`
-          }
-        >
-          <Settings size={18} /> Settings
-        </NavLink>
-        <button
-          onClick={async () => {
-            await supabase.auth.signOut();
-          }}
-          className="mt-1 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 transition cursor-pointer"
-        >
-          <LogOut size={18} /> Sign Out
-        </button>
-        <div className="mt-3 flex items-center gap-3 border-t border-white/5 pt-3 px-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 font-semibold shrink-0">A</div>
-          <div className="overflow-hidden">
-            <p className="text-sm font-medium truncate">Administrator</p>
-            <p className="text-xs text-gray-400 truncate">Admin Account</p>
+        <div className="mt-auto border-t border-white/10 p-4">
+          <NavLink
+            to="/settings"
+            onClick={onClose}
+            className={({ isActive }) =>
+              `flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition ${
+                isActive
+                  ? "bg-blue-600 text-white font-medium"
+                  : "text-gray-400 hover:bg-white/10 hover:text-white"
+              }`
+            }
+          >
+            <Settings size={18} /> Settings
+          </NavLink>
+          <button
+            onClick={async () => {
+              if (onClose) onClose();
+              await supabase.auth.signOut();
+            }}
+            className="mt-1 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 transition cursor-pointer"
+          >
+            <LogOut size={18} /> Sign Out
+          </button>
+          <div className="mt-3 flex items-center gap-3 border-t border-white/5 pt-3 px-2">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 font-semibold shrink-0">A</div>
+            <div className="overflow-hidden">
+              <p className="text-sm font-medium truncate">Administrator</p>
+              <p className="text-xs text-gray-400 truncate">Admin Account</p>
+            </div>
           </div>
         </div>
-      </div>
-    </aside>
+      </aside>
+    </>
   );
 }

@@ -297,7 +297,7 @@ export default function Dashboard() {
   }, [checkedInList, attendanceSearch, attendanceFilter]);
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6 p-4 sm:p-6 max-w-full">
       {/* Top Banner & Refresh */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
